@@ -48,8 +48,9 @@ class claim_extractor:
             )
         text_out = self.tokenizer.decode(out[0], skip_special_tokens=True)
         # Optional light parsing into a list of bullet points / numbers
+        text = text_out.split("[/INST]",1)[1]
         claims = []
-        for line in text_out.splitlines():
+        for line in text.splitlines():
             line = line.strip()
             if not line:
                 continue
