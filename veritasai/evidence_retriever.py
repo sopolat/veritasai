@@ -11,7 +11,7 @@ class evidence_retriever:
         return util.cos_sim(a, b)
     def cos_sim2(a, b):
         return torch.abs(util.cos_sim(a, b))
-    def evidence_search(self,query,corpus,top_n,score_function=cos_sim2,score_limit=0.7):
+    def evidence_search(self,query,corpus,top_n=5,score_function=cos_sim2,score_limit=0.7):
         corpus_embeddings = self.embedder.encode(corpus, convert_to_tensor=True)
         corpus_embeddings = corpus_embeddings.to("cuda")
         corpus_embeddings = util.normalize_embeddings(corpus_embeddings)
