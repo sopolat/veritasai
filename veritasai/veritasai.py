@@ -7,10 +7,11 @@ class veritasai:
         self.ce = claim_extractor()
         self.cv = claim_verifier()
         self.er = evidence_retriever()
-    def extract_claims(self,reports,knowledgebase,top_n=5,score_function=evidence_retriever.cos_sim2,score_limit=0.7):
+    def extract_claims(self,reports,knowledgebase,top_n=5,score_limit=0.7):
+        fact_checks=[]
         for report in reports:
             text_out, claims = self.ce.extract_claims(report)
-            hits = self.er.evidence_search(claims, knowledgebase, top_n,score_function,score_limit)
+            hits = self.er.evidence_search(claims, knowledgebase, top_n,self.er.cos_sim2,score_limit)
             fact_check=[]
             for i in range(len(claims)):
                 sentences=[]
@@ -18,4 +19,5 @@ class veritasai:
                     sentences.append(hit["sentence"])
                 raw, parsed = self.cv.verify_claim(claims[i],sentences)
                 fact_check.append({"claim":claims[i], "evidence":sentences, "labels":parsed})
-        return fact_check
+            fact_checks.append({"report":report,"fact_check":fact_check})
+        return fact_checks
