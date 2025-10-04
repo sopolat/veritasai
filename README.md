@@ -49,13 +49,6 @@ VeritasAI is a **fact verification** toolkit designed for multilingual settings 
 pip install veritasai
 ```
 
-> If you don't have a CUDA-enabled PyTorch yet, install one that matches your system:
->
-> ```bash
-> # Example for CUDA 12.x (adjust per https://pytorch.org/get-started/locally/)
-> pip install --index-url https://download.pytorch.org/whl/cu121 torch torchvision torchaudio
-> ```
-
 ### Optional heavy dependencies (usually auto-installed)
 
 - `torch`, `transformers`, `accelerate`, `bitsandbytes`, `peft`, `spacy`, `sentence-transformers`
@@ -72,7 +65,7 @@ pip install veritasai
 > _Note: function names below reflect the intended design; adjust if your local API differs._
 
 ```python
-from veritasai import VeritasAI  # wrapper that runs extraction → retrieval → verification
+from veritasai import veritasai  # wrapper that runs extraction → retrieval → verification
 
 # A very small raw-text knowledge base (list of passages or documents)
 kb = [
@@ -82,17 +75,14 @@ kb = [
 ]
 
 # Initialize the pipeline (no extra config required)
-va = VeritasAI(knowledge_base=kb)  # or VeritasAI(kb=kb) depending on your API
+vai = veritasai() 
 
-text = "Aspirin reduces fever in adults."
-result = va.verify(text)  # returns a structured object with claims, evidence, and verdicts
+texts = ["Aspirin reduces fever in adults."]
+result = vai.extract_claims(texts,kb,top_n=1,score_limit=0.5)  # returns a structured object with claims, evidence, and verdicts
 
-# Inspect the first verified claim
-first = result.claims[0]
-print("Claim:", first.text)
-print("Verdict:", first.verdict)        # e.g., "SUPPORTED", "REFUTED", "NOT ENOUGH INFO"
-print("Evidence snippet:", first.evidence.snippet)
-print("Evidence source:", first.evidence.source_id)  # index/identifier in your KB
+# Inspect the claims from first document
+first = result[0]
+print(first)
 ```
 
 ## Usage & API Overview
@@ -103,28 +93,39 @@ VeritasAI exposes three core building blocks (plus a wrapper). Typical usage wir
 
 - **`claim_extractor.py`** — finds atomic claims in raw text.
 - **`evidence_retriever.py`** — retrieves candidate evidence spans from the knowledge base.
-- **`claim_verifier.py`** — classifies each (claim, evidence) pair (e.g., supported/refuted/unknown).
+- **`claim_verifier.py`** — classifies each (claim, evidence) pair (e.g., SUPPORTED/REFUTED/INSUFFICIENT).
 
 ### Wrapper pipeline
 
-- **`veritasai`** (wrapper) — orchestrates the three stages end-to-end.
+- **`veritasai`** using individual functions.
   - Example sketch:
 
     ```python
-    from veritasai import ClaimExtractor, EvidenceRetriever, ClaimVerifier, VeritasAI
+    from veritasai import claim_extractor,claim_verifier, evidence_retriever
+	# A very small raw-text knowledge base (list of passages or documents)
+	kb = [
+		"Aspirin (acetylsalicylic acid) can help reduce fever and relieve minor aches.",
+		"For adults, typical oral doses of ibuprofen are 200–400 mg every 4–6 hours as needed.",
+		"Type 2 diabetes is characterized by insulin resistance."
+	]
 
-    extractor = ClaimExtractor()
-    retriever = EvidenceRetriever(knowledge_base=kb)
-    verifier  = ClaimVerifier()
+	# Initialize the indivual functions (no extra config required)
+	ce = claim_extractor()
+	cv = claim_verifier()
+	er = evidence_retriever()
 
-    # Use individual stages
-    claims = extractor.extract(text)
-    evidence = retriever.retrieve(claims)
-    verdicts = verifier.verify(claims, evidence)
+	text = "Aspirin reduces fever in adults."
+	text_out, claims = ce.extract_claims(text,max_new_tokens = 512, temperature= 0.1, top_p= 0.80)
+	hits = er.evidence_search(claims,kb,top_n=1,score_function=er.cos_sim2,score_limit=0.5)
 
-    # Or just use the high-level wrapper
-    va = VeritasAI(knowledge_base=kb)
-    result = va.verify(text)
+	fact_check=[]
+	for i in range(len(claims)):
+		sentences=[]
+		for hit in hits[i]:
+			sentences.append(hit["sentence"])
+		raw, parsed = cv.verify_claim(claims[i],sentences)
+		fact_check.append({"claim":claims[i], "evidence":sentences, "labels":parsed})
+	print(fact_check)
     ```
 
 > **No config needed:** the defaults should work out-of-the-box; customize models/parameters as needed once those knobs are exposed.
@@ -141,7 +142,6 @@ kb = [
 ]
 ```
 
-For larger corpora, consider pre-splitting into **passages** (e.g., 256–512 tokens) and storing an **ID** per passage so evidence links are stable. You can load from files or a database and pass a Python list to the pipeline.
 
 ## Project Status
 
