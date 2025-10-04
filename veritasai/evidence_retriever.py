@@ -3,13 +3,13 @@ from sentence_transformers import SentenceTransformer, util
 class evidence_retriever:
     def __init__(self):
         self.embedder = SentenceTransformer("all-MiniLM-L6-v2")
-    def dot_score(a, b):
+    def dot_score(self,a, b):
         return util.dot_score(a, b)
-    def dot_score2(a, b):
+    def dot_score2(self,a, b):
         return torch.abs(util.dot_score(a,b))
-    def cos_sim(a, b):
+    def cos_sim(self,a, b):
         return util.cos_sim(a, b)
-    def cos_sim2(a, b):
+    def cos_sim2(self,a, b):
         return torch.abs(util.cos_sim(a, b))
     def evidence_search(self,query,corpus,top_n=5,score_function=cos_sim2,score_limit=0.7):
         corpus_embeddings = self.embedder.encode(corpus, convert_to_tensor=True)

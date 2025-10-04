@@ -22,7 +22,7 @@ class claim_verifier:
         self.model = PeftModel.from_pretrained(base, ADAPTER_ID)
         self.model.eval()
 
-    def build_messages(claim: str, evidence: str):
+    def build_messages(self,claim: str, evidence: str):
         """
         Use Llama 3 chat template.
         Instruct the model to return compact JSON with one of: SUPPORTED, REFUTED, INSUFFICIENT.
@@ -76,8 +76,8 @@ class claim_verifier:
                 return {"raw": text}
         return {"raw": text}
     
-    def verify_claim(self,claim: str, evidence: str):
-        msgs = self.build_messages(claim, evidence)
+    def verify_claim(self,claim: str, evidence: str, max_new_tokens=256, temperature=0.0, top_p=0.9):
+        msgs = self.build_messages(claim, evidence,max_new_tokens, temperature, top_p)
         raw = self.generate(msgs)
         parsed = self.parse_json(raw)
         return raw, parsed
