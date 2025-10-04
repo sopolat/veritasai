@@ -16,6 +16,7 @@ keywords = ["veritasai"]
 classifiers = [
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3.12",
+]
 dependencies = [
   "spacy",
   "sentence-transformers",
@@ -25,8 +26,6 @@ dependencies = [
   "peft",
   "torch"
 ]
-]
-
 
 # If/when you have runtime deps, list them here, e.g.:
 # dependencies = ["numpy>=1.24", "pydantic>=2"]
