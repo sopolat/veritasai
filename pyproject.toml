@@ -1,16 +1,14 @@
 [build-system]
-requires = ["setuptools>=69", "wheel", "setuptools-scm>=8"]
+requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "veritasai"
-dynamic = ["version"]
+version = "0.1.0"            # <-- add a concrete version
 description = "Python utilities for veritasai (edit this description)"
 readme = "README.md"
-license = { file = "LICENSE" }  # MIT in repo
-authors = [
-  { name = "Suleyman Olcay Polat" }
-]
+license = { file = "LICENSE" }
+authors = [{ name = "Suleyman Olcay Polat" }]
 requires-python = ">=3.8"
 keywords = ["veritasai"]
 classifiers = [
@@ -27,42 +25,12 @@ dependencies = [
   "torch"
 ]
 
-# If/when you have runtime deps, list them here, e.g.:
-# dependencies = ["numpy>=1.24", "pydantic>=2"]
-
 [project.urls]
 Homepage = "https://github.com/sopolat/veritasai"
 Repository = "https://github.com/sopolat/veritasai"
 Issues = "https://github.com/sopolat/veritasai/issues"
 
-# CLI entry points (uncomment/adjust if you add a CLI)
-# [project.scripts]
-# veritasai = "veritasai.__main__:main"
-
-[tool.setuptools]
-# If you have non-Python files to include, set this and add MANIFEST.in
-# include-package-data = true
-
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["veritasai*"]
 exclude = ["tests*", "docs*"]
-
-[tool.setuptools_scm]
-# Reads version from git tags; if not available, uses a local fallback
-version_scheme = "no-guess-dev"
-local_scheme = "node-and-timestamp"
-fallback_version = "0.0.0"
-
-# ---- Dev tooling (optional but handy) ----
-[tool.black]
-line-length = 88
-target-version = ["py312"]
-
-[tool.isort]
-profile = "black"
-
-[tool.ruff]
-line-length = 88
-target-version = "py312"
-select = ["E", "F", "I"]
