@@ -63,6 +63,7 @@ class claim_verifier:
         Best-effort JSON extraction from the model output.
         """
         # First try a direct json.loads
+        text=text.split("Respond with JSON only.assistant")[1]
         try:
             return json.loads(text)
         except Exception:
@@ -76,8 +77,13 @@ class claim_verifier:
                 return {"raw": text}
         return {"raw": text}
     
-    def verify_claim(self,claim: str, evidence: str, max_new_tokens=256, temperature=0.0, top_p=0.9):
-        msgs = self.build_messages(claim, evidence,max_new_tokens, temperature, top_p)
-        raw = self.generate(msgs)
-        parsed = self.parse_json(raw)
-        return raw, parsed
+    def verify_claim(self,claim: str, evidences, max_new_tokens=256, temperature=0.0, top_p=0.9):
+        raws=[]
+        parseds=[]
+        for evidence in evidences:
+            msgs = self.build_messages(claim, evidence)
+            raw = self.generate(msgs,max_new_tokens, temperature, top_p)
+            parsed = self.parse_json(raw)
+            raws.append(raw)
+            parseds.append(parsed)
+        return raws, parseds

@@ -11,5 +11,11 @@ class veritasai:
         for report in reports:
             text_out, claims = self.ce.extract_claims(report)
             hits = self.er.evidence_search(claims, knowledgebase, top_n,score_function,score_limit)
-            
-        return "test"
+            fact_check=[]
+            for i in range(len(claims)):
+                sentences=[]
+                for hit in hits[i]:
+                    sentences.append(hit["sentence"])
+                raw, parsed = self.cv.verify_claim(claims[i],sentences)
+                fact_check.append({"claim":claims[i], "evidence":sentences, "labels":parsed})
+        return fact_check
