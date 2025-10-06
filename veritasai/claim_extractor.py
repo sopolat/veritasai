@@ -32,7 +32,7 @@ class claim_extractor:
     def extract_claims(self,text: str, max_new_tokens: int = 512, temperature: float = 0.1, top_p: float = 0.80):
         prompt = (
         "Extract clear, verifiable claims from the passage below. "
-        "Return them as a numbered list.\n\n"
+        "Return them as a numbered list and same language as the Passage.\n\n"
         f"Passage:\n{text}"
         )
         input_ids = self.tokenizer(self.format_inst(prompt), return_tensors="pt").to(self.model.device)

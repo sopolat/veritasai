@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "veritasai"
-version = "0.1.14"            # <-- add a concrete version
+version = "0.1.15"            # <-- add a concrete version
 description = "Python utilities for veritasai (edit this description)"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -22,7 +22,8 @@ dependencies = [
   "accelerate",
   "bitsandbytes",
   "peft",
-  "torch"
+  "torch",
+  "pandas"
 ]
 
 [project.urls]
