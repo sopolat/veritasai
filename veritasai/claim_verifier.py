@@ -2,7 +2,7 @@ import json, re, torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 from peft import PeftModel
 class claim_verifier:
-    def __init__(self, BASE_ID="unsloth/llama-3-8b-Instruct-bnb-4bit", ADAPTER_ID="SYX/llama3_based_claim_verifier"):
+    def __init__(self, BASE_ID="unsloth/llama-3-8b-Instruct-bnb-4bit", ADAPTER_ID="SYX/llama3_based_claim_verifier",prompt=None):
         # BitsAndBytes 4-bit config
         bnb_config = BitsAndBytesConfig(
             load_in_4bit=True,
@@ -19,19 +19,25 @@ class claim_verifier:
             trust_remote_code=True,
             quantization_config=bnb_config,
         )
-        self.model = PeftModel.from_pretrained(base, ADAPTER_ID)
+        if(ADAPTER_ID is None):
+            self.model = base
+        else:
+            self.model = PeftModel.from_pretrained(base, ADAPTER_ID)
         self.model.eval()
+        if prompt is None:
+            self.prompt = ("You are a precise fact-checking assistant. "
+                    "Given a CLAIM and EVIDENCE, decide whether the claim is SUPPORTED, REFUTED, or INSUFFICIENT. "
+                    "Return JSON: {\"label\": \"SUPPORTED|REFUTED|INSUFFICIENT\", \"rationale\": \"...\"}.")
+        else:
+            self.prompt = prompt
+            
 
     def build_messages(self,claim: str, evidence: str):
         """
         Use Llama 3 chat template.
         Instruct the model to return compact JSON with one of: SUPPORTED, REFUTED, INSUFFICIENT.
         """
-        system = (
-            "You are a precise fact-checking assistant. "
-            "Given a CLAIM and EVIDENCE, decide whether the claim is SUPPORTED, REFUTED, or INSUFFICIENT. "
-            "Return JSON: {\"label\": \"SUPPORTED|REFUTED|INSUFFICIENT\", \"rationale\": \"...\"}."
-        )
+        system = self.prompt
         user = f"CLAIM: {claim}\n\nEVIDENCE:\n{evidence}\n\nRespond with JSON only."
         return [
             {"role": "system", "content": system},

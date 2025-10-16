@@ -12,7 +12,7 @@ class claim_extractor:
         self.tokenizer = AutoTokenizer.from_pretrained(BASE_ID, use_fast=True, trust_remote_code=True)
         
         # ---- Load the 4-bit base (bitsandbytes)
-        self.base_model = AutoModelForCausalLM.from_pretrained(
+        base_model = AutoModelForCausalLM.from_pretrained(
             BASE_ID,
             device_map=self.device_map,
             torch_dtype=self.torch_dtype,
@@ -20,7 +20,10 @@ class claim_extractor:
         )
         
         # ---- Attach the PEFT adapter
-        self.model = PeftModel.from_pretrained(self.base_model, ADAPTER_ID)
+        if(ADAPTER_ID is None):
+            self.model = base_model
+        else:
+            self.model = PeftModel.from_pretrained(base_model, ADAPTER_ID)
         self.model.eval()
 
     # ---- Simple Mistral-Instruct prompt helper
