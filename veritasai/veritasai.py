@@ -8,12 +8,12 @@ class veritasai:
         self.ce = claim_extractor(EXBASE_ID,EXADAPTER_ID)
         self.cv = claim_verifier(VRBASE_ID,VRADAPTER_ID,VRprompt)
         self.er = evidence_retriever()
-    def extract_claims(self,reports,knowledgebase,top_n=5,score_limit=0.5,score_function=None):
+    def extract_claims(self,reports,knowledgebase,language = "english",top_n=5,score_limit=0.5,score_function=None):
         if score_function is None:
             score_function = self.er.cos_sim2
         fact_checks=[]
         for report in reports:
-            text_out, claims = self.ce.extract_claims(report)
+            text_out, claims = self.ce.extract_claims(report,language = language)
             hits = self.er.evidence_search(claims, knowledgebase, top_n,score_function,score_limit)
             fact_check=[]
             for i in range(len(claims)):
