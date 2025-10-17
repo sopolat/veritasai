@@ -69,7 +69,7 @@ class claim_verifier:
         Best-effort JSON extraction from the model output.
         """
         # First try a direct json.loads
-        text=text.split("Respond with JSON only.assistant")[1]
+        text=text.split("Respond with JSON only")[1]
         try:
             return json.loads(text)
         except Exception:

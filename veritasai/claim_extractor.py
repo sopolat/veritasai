@@ -2,7 +2,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from peft import PeftModel
 class claim_extractor:
-    def __init__(self, BASE_ID="unsloth/mistral-7b-instruct-v0.2-bnb-4bit", ADAPTER_ID="SYX/mistral_based_claim_extractor"):
+    def __init__(self, BASE_ID="unsloth/mistral-7b-instruct-v0.2-bnb-4bit", ADAPTER_ID="SYX/mistral_based_claim_extractor",):
         
         # ---- Device & dtype
         self.device_map = "auto"  # spreads layers across available GPUs if needed
@@ -32,10 +32,10 @@ class claim_extractor:
         return f"<s>[INST] {content.strip()} [/INST]"
     
     # ---- Claim extraction helper
-    def extract_claims(self,text: str, max_new_tokens: int = 512, temperature: float = 0.1, top_p: float = 0.80):
+    def extract_claims(self,text: str,language: str = "english", max_new_tokens: int = 512, temperature: float = 0.1, top_p: float = 0.80):
         prompt = (
         "Extract clear, verifiable claims from the passage below. "
-        "Return them as a numbered list and same language as the Passage.\n\n"
+        f"Return them as a numbered list and in {language} language.\n\n"
         f"Passage:\n{text}"
         )
         input_ids = self.tokenizer(self.format_inst(prompt), return_tensors="pt").to(self.model.device)
