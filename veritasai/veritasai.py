@@ -4,9 +4,9 @@ from .claim_verifier import claim_verifier
 from .evidence_retriever import evidence_retriever
 import pandas as pd
 class veritasai:
-    def __init__(self):
-        self.ce = claim_extractor()
-        self.cv = claim_verifier()
+    def __init__(self,EXBASE_ID="unsloth/mistral-7b-instruct-v0.2-bnb-4bit",EXADAPTER_ID="SYX/mistral_based_claim_extractor",EXprompt=None,VRBASE_ID="unsloth/llama-3-8b-Instruct-bnb-4bit", VRADAPTER_ID="SYX/llama3_based_claim_verifier",VRprompt=None):
+        self.ce = claim_extractor(EXBASE_ID,EXADAPTER_ID)
+        self.cv = claim_verifier(VRBASE_ID,VRADAPTER_ID,VRprompt)
         self.er = evidence_retriever()
     def extract_claims(self,reports,knowledgebase,top_n=5,score_limit=0.5,score_function=None):
         if score_function is None:
