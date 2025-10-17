@@ -28,20 +28,29 @@ class veritasai:
             fact = fact_checks[i]["fact_check"]
             countSupported=0
             countRefuted=0
-            countInsufficient=0 
+            countInsufficient=0
+            countError=0
             for j in range(len(fact)):
                 labels=fact[j]["labels"]
                 sflag=False
                 rflag=False
+                eflag=False
                 for l in labels:
-                    if(l["label"].upper() == "SUPPORTED"):
-                        sflag=True
-                    elif(l["label"].upper() == "REFUTED"):
-                        rflag=True
+                    try:
+                        if(l["label"].upper() == "SUPPORTED"):
+                            sflag=True
+                        elif(l["label"].upper() == "REFUTED"):
+                            rflag=True
+                    except Exception as e:
+                        eflag=True
+                        print(e)
+                        print("at "+ l)
                 if(rflag):
                     countRefuted+=1
                 elif(sflag):
                     countSupported+=1
+                elif(eflag):
+                    countError+=1
                 else:
                     countInsufficient+=1
             rows.append({
@@ -50,6 +59,7 @@ class veritasai:
                 "count_supported": countSupported,
                 "count_refuted": countRefuted,
                 "count_insufficient": countInsufficient,
+                "count_error": countError
             })
         df = pd.DataFrame(rows)
         return df,fact_checks
