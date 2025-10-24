@@ -44,7 +44,7 @@ class veritasai:
                     except Exception as e:
                         eflag=True
                         print(e)
-                        print("at "+ l)
+                        print("at "+ str(l))
                 if(rflag):
                     countRefuted+=1
                 elif(sflag):
